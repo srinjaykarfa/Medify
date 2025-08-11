@@ -3,7 +3,7 @@ const PageHeader = ({ title, subtitle, children }) => {
     <div className="relative mb-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{title}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-600 tracking-tight">{title}</h1>
           <p className="mt-2 text-lg text-gray-600">
             {subtitle}
           </p>
@@ -12,7 +12,7 @@ const PageHeader = ({ title, subtitle, children }) => {
           {children}
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500/0 via-blue-500/40 to-blue-500/0"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500/0 via-blue-500/60 to-blue-500/0"></div>
     </div>
   );
 };

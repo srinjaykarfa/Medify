@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 import { LockClosedIcon } from '@heroicons/react/24/solid';
 
-const AdminLoginPg = () => {
+const AdminLoginPg = ({ setIsAuthenticated, setUserRole }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,16 +16,28 @@ const AdminLoginPg = () => {
     toast.loading('Authenticating...', { id: 'auth' });
 
     setTimeout(() => {
-      const adminName = email.split('@')[0];
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem(
-        'userName',
-        adminName.charAt(0).toUpperCase() + adminName.slice(1)
-      );
+      // Check admin credentials
+      if (email === 'admin@medify.com' && password === 'Admin123!@#') {
+        const adminName = email.split('@')[0];
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('accessToken', 'admin_token');
+        localStorage.setItem(
+          'userName',
+          adminName.charAt(0).toUpperCase() + adminName.slice(1)
+        );
 
-      setLoading(false);
-      toast.success(`Welcome, ${adminName}!`, { id: 'auth' });
-      navigate('/');
+        // Update app state
+        if (setIsAuthenticated) setIsAuthenticated(true);
+        if (setUserRole) setUserRole('admin');
+
+        setLoading(false);
+        toast.success(`Welcome, ${adminName}!`, { id: 'auth' });
+        navigate('/admin-dashboard');
+      } else {
+        setLoading(false);
+        toast.error('Invalid admin credentials', { id: 'auth' });
+      }
     }, 2000);
   };
 

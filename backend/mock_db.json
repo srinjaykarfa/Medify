@@ -1,0 +1,63 @@
+{
+  "users": [
+    {
+      "_id": "doctor1",
+      "username": "Dr. Sarah Wilson",
+      "email": "sarah.wilson@medify.com",
+      "password": "hashed_password",
+      "role": "doctor",
+      "license_number": "MD12345",
+      "specialization": "Cardiologist",
+      "experience": 8,
+      "verification_status": "approved",
+      "is_verified": true,
+      "created_at": "2024-01-15T10:30:00Z",
+      "approved_at": "2024-01-16T09:15:00Z"
+    },
+    {
+      "_id": "doctor2",
+      "username": "Dr. Michael Chen",
+      "email": "michael.chen@medify.com",
+      "password": "hashed_password",
+      "role": "doctor",
+      "license_number": "MD67890",
+      "specialization": "Dermatologist",
+      "experience": 12,
+      "verification_status": "approved",
+      "is_verified": true,
+      "created_at": "2024-01-20T14:20:00Z",
+      "approved_at": "2024-01-21T11:30:00Z"
+    },
+    {
+      "_id": "doctor3",
+      "username": "Dr. Priya Sharma",
+      "email": "priya.sharma@medify.com",
+      "password": "hashed_password",
+      "role": "doctor",
+      "license_number": "MD11111",
+      "specialization": "Pediatrician",
+      "experience": 6,
+      "verification_status": "pending",
+      "is_verified": false,
+      "created_at": "2024-02-01T16:45:00Z",
+      "aadhaar_card_path": "uploads/priya_aadhaar.jpg",
+      "doctor_certificate_path": "uploads/priya_certificate.jpg"
+    },
+    {
+      "_id": "doctor4",
+      "username": "Dr. Raj Patel",
+      "email": "raj.patel@medify.com",
+      "password": "hashed_password",
+      "role": "doctor",
+      "license_number": "MD22222",
+      "specialization": "Orthopedic",
+      "experience": 15,
+      "verification_status": "approved",
+      "is_verified": true,
+      "created_at": "2024-01-25T09:10:00Z",
+      "approved_at": "2024-01-26T13:45:00Z"
+    }
+  ],
+  "chats": [],
+  "system_settings": []
+}

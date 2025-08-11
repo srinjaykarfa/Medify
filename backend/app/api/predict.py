@@ -28,7 +28,7 @@ scalers = {
     "diabetes": joblib.load(os.path.join(base_path, "scaler.pkl")),
 }
 
-@router.post("/predict/{disease}")
+@router.post("/{disease}")
 def predict_disease(disease: str, input_data: dict):
     if disease not in models:
         raise HTTPException(status_code=404, detail="Model not found for this disease.")
@@ -97,7 +97,7 @@ def predict_disease(disease: str, input_data: dict):
 
     return {"disease": disease, "prediction": result}
 
-@router.post("/predict/skin/upload")
+@router.post("/skin/upload")
 async def predict_skin_disease_upload(file: UploadFile = File(...)):
     """Alternative endpoint for direct file upload"""
     try:

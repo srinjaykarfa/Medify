@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import BASE_URL from '../config/api';
 
 const QuickCheckup = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('heart');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({});
@@ -134,12 +132,12 @@ const QuickCheckup = () => {
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
       const response = await fetch(`${BASE_URL}/api/predict/${diseaseType}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...(token && { 'Authorization': `Bearer ${token}` })
         },
         body: JSON.stringify(inputData)
       });

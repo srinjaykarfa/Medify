@@ -13,7 +13,13 @@ from fastapi import UploadFile
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-client = Groq(api_key=GROQ_API_KEY)
+# Initialize Groq client only if API key is available
+if GROQ_API_KEY and GROQ_API_KEY != "your_groq_api_key_here":
+    client = Groq(api_key=GROQ_API_KEY)
+else:
+    client = None
+    print("Warning: GROQ_API_KEY not set. Groq functionality will be disabled.")
+
 tts = pyttsx3.init()
 
 UPLOAD_DIR = "uploads"
@@ -47,15 +53,21 @@ def analyze(query_text: str):
         {"role": "user", "content": query_text},
     ]
 
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=messages,
-        temperature=0.6,
-        max_tokens=1024,
-        top_p=1,
-    )
+    if client is None:
+        result = "I'm sorry, but the AI service is currently unavailable. Please check your GROQ_API_KEY configuration."
+    else:
+        try:
+            response = client.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=messages,
+                temperature=0.6,
+                max_tokens=1024,
+                top_p=1,
+            )
+            result = response.choices[0].message.content
+        except Exception as e:
+            result = f"I'm sorry, there was an error processing your request: {str(e)}"
 
-    result = response.choices[0].message.content
     chat_history.append((query_text, result))
     return result
 

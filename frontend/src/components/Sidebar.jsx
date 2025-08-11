@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
   ChatBubbleLeftIcon,
@@ -8,45 +8,25 @@ import {
   CalendarIcon,
   XMarkIcon,
   Bars3Icon,
-  ArrowLeftOnRectangleIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/solid';
-import logo from '../assets/logo_arogya.png'; // ✅ Corrected import
+import logo from '../assets/logo_arogya.png';
 
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const checkAuthStatus = () => {
-      const token = localStorage.getItem('access_token');
-      const username = localStorage.getItem('username');
-
-      if (token && username) {
-        setIsAuthenticated(true);
-        setUser({
-          name: username,
-          role: 'Patient',
-        });
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname, setIsMobileMenuOpen]);
 
+  // Patient navigation only (since sidebar is only shown for patients)
   const navigation = [
-    { name: 'Home', href: '/', icon: HomeIcon },
-    { name: 'Chatbot', href: '/chatbot', icon: ChatBubbleLeftIcon },
+    { name: 'Home', href: '/dashboard', icon: HomeIcon },
+    { name: 'AI Chat', href: '/chat', icon: ChatBubbleLeftIcon },
     { name: 'Quick Checkup', href: '/quick-checkup', icon: UserCircleIcon },
     { name: 'Appointments', href: '/appointments', icon: CalendarIcon },
     { name: 'Health Metrics', href: '/health-metrics', icon: HeartIcon },
+    { name: 'Health Predict', href: '/health-predict', icon: HeartIcon },
     {
       name: 'Emergency',
       href: '/emergency',
@@ -54,18 +34,6 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       className: 'mt-auto text-red-500 hover:text-red-400 hover:bg-red-50/10',
     },
   ];
-
-  const handleSignIn = () => {
-    navigate('/signin');
-  };
-
-  const handleSignOut = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('username');
-    setIsAuthenticated(false);
-    setUser(null);
-    navigate('/');
-  };
 
   const sidebarClasses = `fixed md:relative inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
     isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
@@ -136,42 +104,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             })}
           </nav>
 
-          {/* User Profile / Sign In Section */}
+          {/* User Profile / Sign In Section - Simplified */}
           <div className="p-4 border-t border-white/20">
-            {isAuthenticated && user ? (
-              <div className="space-y-2">
-                <Link
-                  to="/profile"
-                  className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg p-2 transition-colors"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt="User"
-                    className="h-10 w-10 rounded-full border-2 border-white/20"
-                  />
-                  <div className="ml-3">
-                    <p className="text-sm font-semibold text-white">{user.name}</p>
-                    <p className="text-xs text-white/70">{user.role || 'Patient'}</p>
-                  </div>
-                </Link>
-                <button
-                  id="sign-out-button"
-                  onClick={handleSignOut}
-                  className="flex items-center w-full px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleSignIn}
-                className="flex items-center justify-center w-full px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 shadow-lg"
-              >
-                <UserCircleIcon className="h-6 w-6 mr-2" />
-                <span className="text-sm font-semibold">Sign In / Login</span>
-              </button>
-            )}
+            {/* Empty space - no user info displayed */}
           </div>
         </div>
       </div>

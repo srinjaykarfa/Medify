@@ -28,12 +28,12 @@ const Navbar = ({ setIsMobileMenuOpen }) => {
     };
   }, []);
 
-  // Proper sign out: clear all auth data and redirect
+  // Proper sign out: clear all auth data and redirect to home page
   const handleSignOut = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('username');
     setShowSignOutModal(false);
-    navigate('/signin');
+    navigate('/');
     window.location.reload(); // Ensure state is reset
   };
 
@@ -68,73 +68,46 @@ const Navbar = ({ setIsMobileMenuOpen }) => {
               >
                 Contact
               </Link>
+            </div>
+
+            {/* Right side - User menu icon */}
+            <div className="flex items-center">
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center space-x-2 text-blue-500 text-lg font-semibold tracking-wide transition duration-300 hover:text-blue-700 hover:scale-105"
                 >
-                  {isAuthenticated ? (
-                    <>
-                      <UserCircleIcon className="h-6 w-6 text-blue-500" />
-                      <span className="hidden sm:inline">Welcome, <span className="font-bold text-blue-700">{userName}</span></span>
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
+                  <UserCircleIcon className="h-6 w-6 text-blue-500" />
                 </button>
                 {showDropdown && (
-                  <div className="absolute mt-2 w-56 bg-white shadow-xl rounded-xl z-50 animate-fade-in p-2">
-                    {isAuthenticated ? (
-                      <>
-                        <Link
-                          to="/profile"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 rounded-md"
-                        >
-                          Profile
-                        </Link>
-                        <Link
-                          to="/appointments"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 rounded-md"
-                        >
-                          My Appointments
-                        </Link>
-                        <button
-                          onClick={handleSignOut}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 rounded-md"
-                        >
-                          Logout
-                        </button>
-                      </>
-                    ) : (
-                      <Link
-                        to="/signin"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 rounded-md"
-                      >
-                        Login / Signup
-                      </Link>
-                    )}
+                  <div className="absolute right-0 mt-2 w-56 bg-white shadow-xl rounded-xl z-50 animate-fade-in p-2">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 rounded-md"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/appointments"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 rounded-md"
+                    >
+                      My Appointments
+                    </Link>
+                    <hr className="my-2" />
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                    >
+                      Logout
+                    </button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Right side buttons */}
-            <div className="flex items-center space-x-6">
-              <Link
-                to="/admin-login"
-                className="bg-green-500 px-4 py-2 text-white text-sm rounded-md hover:bg-green-600 transition hover:scale-105 shadow-md"
-              >
-                Admin Login
-              </Link>
-              {isAuthenticated && (
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="bg-red-600 px-4 py-2 text-white text-sm rounded-md hover:bg-red-700 transition hover:scale-105 shadow-md"
-                >
-                  Sign Out
-                </button>
-              )}
+            {/* Right side - empty for clean look */}
+            <div className="flex items-center">
+              {/* Placeholder for future elements if needed */}
             </div>
           </div>
         </div>

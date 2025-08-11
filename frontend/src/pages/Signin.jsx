@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaGoogle, FaFacebookF, FaGithub } from 'react-icons/fa';
 import BASE_URL from '../config/api';
 
-const Signin = ({ setIsAuthenticated, onAuthSuccess }) => {
+const Signin = ({ setIsAuthenticated, onAuthSuccess, setUserRole }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,16 +26,41 @@ const Signin = ({ setIsAuthenticated, onAuthSuccess }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('username', data.username);
-        if (onAuthSuccess) onAuthSuccess(data.access_token, data.username);
+        
+        // Store authentication data
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('accessToken', data.access_token);
+        localStorage.setItem('userName', data.username);
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('verificationStatus', data.verification_status);
+        
+        // Update app state
         if (setIsAuthenticated) setIsAuthenticated(true);
-        navigate('/chatbot'); // Redirect to a protected page
+        if (setUserRole) setUserRole(data.role);
+        
+        // Check if doctor and not verified
+        if (data.role === 'doctor' && data.verification_status !== 'approved') {
+          setError('Your doctor account is pending verification. Please wait for admin approval.');
+          setLoading(false);
+          return;
+        }
+        
+        // Redirect based on role
+        if (data.role === 'patient') {
+          navigate('/dashboard');
+        } else if (data.role === 'doctor') {
+          navigate('/doctor-dashboard');
+        } else if (data.role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/dashboard'); // Default fallback
+        }
       } else {
         const errorData = await response.json().catch(() => ({}));
         setError(errorData.detail || 'Invalid credentials');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Sign in error:', error);
       setError('An error occurred during sign in');
     } finally {
       setLoading(false);
