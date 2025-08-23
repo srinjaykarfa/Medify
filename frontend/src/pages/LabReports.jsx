@@ -131,7 +131,7 @@ const LabReports = () => {
         fetchAnalytics();
         
         // Show analysis results
-        if (data.analysis_results && data.analysis_results.length > 0) {
+        if (data.analysis_results && Array.isArray(data.analysis_results) && data.analysis_results.length > 0) {
           setSelectedReport({
             ...data,
             analysis_results: data.analysis_results
@@ -293,10 +293,7 @@ const LabReports = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Health Score</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    {analytics.total_reports > 0 ? 
-                      Math.round((analytics.normal_results / (analytics.normal_results + analytics.critical_alerts)) * 100) : 
-                      0
-                    }%
+                    {analytics.health_score || 0}%
                   </p>
                 </div>
               </div>
@@ -339,12 +336,19 @@ const LabReports = () => {
                     <div className="mb-4">
                       <p className="text-sm font-medium text-gray-700 mb-2">Analysis Summary:</p>
                       <div className="space-y-1">
-                        {report.analysis_results.slice(0, 2).map((analysis, index) => (
-                          <div key={index} className={`flex items-center gap-2 text-xs px-2 py-1 rounded-md border ${getStatusColor(analysis.status)}`}>
-                            {getStatusIcon(analysis.status)}
-                            <span>{analysis.test_name}: {analysis.status}</span>
-                          </div>
-                        ))}
+                        {report.analysis_results.slice(0, 2).map((analysis, index) => {
+                          // Safety check for analysis object
+                          if (!analysis || typeof analysis !== 'object' || !analysis.test_name) {
+                            return null;
+                          }
+                          
+                          return (
+                            <div key={index} className={`flex items-center gap-2 text-xs px-2 py-1 rounded-md border ${getStatusColor(analysis.status)}`}>
+                              {getStatusIcon(analysis.status)}
+                              <span>{analysis.test_name}: {analysis.status}</span>
+                            </div>
+                          );
+                        })}
                         {report.analysis_results.length > 2 && (
                           <p className="text-xs text-gray-500">+{report.analysis_results.length - 2} more tests</p>
                         )}
@@ -526,20 +530,27 @@ const LabReports = () => {
                 <div className="mb-6">
                   <h4 className="text-lg font-bold text-blue-700 mb-4">AI Analysis Results</h4>
                   <div className="space-y-4">
-                    {selectedReport.analysis_results.map((analysis, index) => (
-                      <div key={index} className={`border rounded-lg p-4 ${getStatusColor(analysis.status)}`}>
-                        <div className="flex items-center justify-between mb-2">
-                          <h5 className="font-semibold">{analysis.test_name}</h5>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(analysis.status)}
-                            <span className="capitalize font-medium">{analysis.status}</span>
+                    {selectedReport.analysis_results.map((analysis, index) => {
+                      // Safety check for analysis object
+                      if (!analysis || typeof analysis !== 'object' || !analysis.test_name) {
+                        return null;
+                      }
+                      
+                      return (
+                        <div key={index} className={`border rounded-lg p-4 ${getStatusColor(analysis.status)}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <h5 className="font-semibold">{analysis.test_name}</h5>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(analysis.status)}
+                              <span className="capitalize font-medium">{analysis.status}</span>
+                            </div>
                           </div>
+                          <p><strong>Value:</strong> {analysis.value}</p>
+                          <p><strong>Reference Range:</strong> {analysis.reference_range}</p>
+                          <p className="mt-2"><strong>Recommendation:</strong> {analysis.recommendation}</p>
                         </div>
-                        <p><strong>Value:</strong> {analysis.value}</p>
-                        <p><strong>Reference Range:</strong> {analysis.reference_range}</p>
-                        <p className="mt-2"><strong>Recommendation:</strong> {analysis.recommendation}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

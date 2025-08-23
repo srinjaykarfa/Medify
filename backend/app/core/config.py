@@ -14,8 +14,8 @@ class Settings(BaseModel):
     MONGODB_HEALTH_METRICS_COLLECTION: str = os.getenv("MONGODB_HEALTH_METRICS_COLLECTION", "health_metrics")
 
     # Security
-    SECRET_KEY: str = "your-secret-key-here"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 settings = Settings() 

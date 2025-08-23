@@ -46,4 +46,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    return payload 
+    # Convert the payload to the expected format
+    user_data = {
+        "_id": payload.get("sub"),  # Map "sub" to "_id" 
+        "username": payload.get("username"),
+        **payload  # Include other payload data
+    }
+    
+    return user_data 

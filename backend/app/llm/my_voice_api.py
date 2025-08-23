@@ -72,15 +72,29 @@ def analyze(query_text: str):
     return result
 
 def speech_to_text(file_location: str):
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(file_location) as source:
-        audio_data = recognizer.record(source)
-        try:
-            return recognizer.recognize_google(audio_data)
-        except sr.UnknownValueError:
-            return None
-        except sr.RequestError as e:
-            return f"Speech recognition service error: {e}"
+    try:
+        recognizer = sr.Recognizer()
+        
+        # Check if file exists
+        if not os.path.exists(file_location):
+            print(f"❌ Audio file not found: {file_location}")
+            return "I couldn't process the audio. Could you type your message instead?"
+        
+        with sr.AudioFile(file_location) as source:
+            audio_data = recognizer.record(source)
+            try:
+                result = recognizer.recognize_google(audio_data)
+                print(f"🎙 Transcribed: {result}")
+                return result
+            except sr.UnknownValueError:
+                return "I couldn't understand the audio. Could you speak more clearly or type your message?"
+            except sr.RequestError as e:
+                print(f"❌ Speech recognition error: {e}")
+                return "Speech recognition service is unavailable. Please type your message."
+    
+    except Exception as e:
+        print(f"❌ Speech processing error: {str(e)}")
+        return "I couldn't process the audio. Could you type your message instead?"
 
 def text_to_speech(text: str):
     unique_id = uuid.uuid4().hex
@@ -92,17 +106,25 @@ def text_to_speech(text: str):
 
 # ✅ New: Save and convert uploaded audio to WAV format
 def save_and_convert_audio(upload: UploadFile) -> tuple[dict, str]:
-    ext = upload.filename.split('.')[-1]
-    raw_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_input.{ext}"
-    raw_path = os.path.join(UPLOAD_DIR, raw_filename)
+    try:
+        ext = upload.filename.split('.')[-1]
+        raw_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_input.{ext}"
+        raw_path = os.path.join(UPLOAD_DIR, raw_filename)
 
-    with open(raw_path, "wb") as buffer:
-        shutil.copyfileobj(upload.file, buffer)
+        with open(raw_path, "wb") as buffer:
+            shutil.copyfileobj(upload.file, buffer)
 
-    # Convert to WAV using pydub
-    audio = AudioSegment.from_file(raw_path)
-    wav_filename = raw_filename.replace(f".{ext}", ".wav")
-    wav_path = os.path.join(UPLOAD_DIR, wav_filename)
-    audio.export(wav_path, format="wav")
+        # Convert to WAV using pydub
+        audio = AudioSegment.from_file(raw_path)
+        wav_filename = raw_filename.replace(f".{ext}", ".wav")
+        wav_path = os.path.join(UPLOAD_DIR, wav_filename)
+        audio.export(wav_path, format="wav")
 
-    return {"url": f"/uploads/{wav_filename}"}, wav_path
+        return {"url": f"/uploads/{wav_filename}"}, wav_path
+    
+    except Exception as e:
+        print(f"❌ Audio conversion error: {str(e)}")
+        # Create a dummy wav file path for fallback
+        dummy_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_dummy.wav"
+        dummy_path = os.path.join(UPLOAD_DIR, dummy_filename)
+        return {"url": f"/uploads/{dummy_filename}"}, dummy_path

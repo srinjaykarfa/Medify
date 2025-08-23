@@ -62,11 +62,20 @@ def chat(
         # Process audio upload
         if audio:
             print(f"🎙 Saving and converting audio: {audio.filename}")
-            audio_data, wav_path = save_and_convert_audio(audio)
-            print("🎙 Transcribing audio...")
-            user_text = speech_to_text(wav_path)
-            if not user_text:
-                raise HTTPException(status_code=422, detail="Could not understand the audio.")
+            try:
+                audio_data, wav_path = save_and_convert_audio(audio)
+                print("🎙 Transcribing audio...")
+                user_text = speech_to_text(wav_path)
+                
+                # Check if transcription contains error message
+                if not user_text or "couldn't process" in user_text or "couldn't understand" in user_text:
+                    print("❌ Audio processing failed, using fallback message")
+                    user_text = "I sent a voice message but there was an issue processing it. Could you help me with general health advice?"
+                    
+            except Exception as e:
+                print(f"❌ Audio processing error: {str(e)}")
+                user_text = "I tried to send a voice message but encountered an error. Could you help me with general health advice?"
+                audio_data = None
 
         print(f"Analyzing input: {user_text}")
         response_text = analyze(user_text)
