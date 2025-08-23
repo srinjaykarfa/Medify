@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient  # Changed from motor.motor_asyncio
 from dotenv import load_dotenv
 import os
-from .api import chat, users, admin, doctor, lab_reports_simple as lab_reports, predict
+from .api import chat, users, admin, doctor, lab_reports, predict
 from fastapi.staticfiles import StaticFiles
 from .core.mock_db import get_mock_db
 
