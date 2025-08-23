@@ -35,55 +35,82 @@ except Exception as e:
     print(f"❌ Failed to load diabetes model: {e}")
 
 try:
-    # models["skin"] = tf.keras.models.load_model(os.path.join(base_path, "skindisease.h5"))
-    print("⚠️ Skin disease model temporarily disabled due to compatibility issues")
+    models["skin"] = tf.keras.models.load_model(os.path.join(base_path, "skindisease.h5"))
+    print("✅ Skin disease model loaded successfully")
 except Exception as e:
     print(f"❌ Failed to load skin disease model: {e}")
 
 @router.post("/{disease}")
 def predict_disease(disease: str, input_data: dict):
-    if disease not in models:
-        raise HTTPException(status_code=404, detail="Model not found for this disease.")
-
-    model = models[disease]
-
     if disease == "heart":
         try:
             data_obj = HeartInput(**input_data)
-        except:
-            raise HTTPException(status_code=422, detail="Invalid input for heart disease")
-        input_array = np.array([[
-            data_obj.age, data_obj.sex, data_obj.chest_pain_type,
-            data_obj.resting_bp, data_obj.cholesterol, data_obj.fasting_blood_sugar,
-            data_obj.rest_ecg, data_obj.max_heart_rate, data_obj.exercise_angina,
-            data_obj.oldpeak, data_obj.slope, data_obj.major_vessels,
-            data_obj.thal
-        ]])
-        scaler = scalers[disease]
-        input_scaled = scaler.transform(input_array)
-        prediction = model.predict(input_scaled)[0]
-        result = "Positive" if prediction == 1 else "Negative"
+            
+            # Check if model is loaded
+            if "heart" not in models or "heart" not in scalers:
+                raise HTTPException(status_code=503, detail="Heart disease model not available")
+            
+            # Convert to numpy array and scale
+            features = np.array([[
+                data_obj.age, data_obj.sex, data_obj.chest_pain_type, data_obj.resting_bp,
+                data_obj.cholesterol, data_obj.fasting_blood_sugar, data_obj.rest_ecg, data_obj.max_heart_rate,
+                data_obj.exercise_angina, data_obj.oldpeak, data_obj.slope, data_obj.major_vessels, data_obj.thal
+            ]])
+            
+            features_scaled = scalers["heart"].transform(features)
+            prediction = models["heart"].predict(features_scaled)[0]
+            probability = models["heart"].predict_proba(features_scaled)[0]
+            
+            result = {
+                "prediction": "Heart Disease Detected" if prediction == 1 else "No Heart Disease",
+                "probability": {
+                    "no_disease": float(probability[0]),
+                    "disease": float(probability[1])
+                }
+            }
+            
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=f"Error in heart disease prediction: {str(e)}")
 
     elif disease == "diabetes":
         try:
             data_obj = DiabetesInput(**input_data)
-        except:
-            raise HTTPException(status_code=422, detail="Invalid input for diabetes")
-        input_array = np.array([[ 
-            data_obj.Pregnancies, data_obj.Glucose, data_obj.BloodPressure,
-            data_obj.SkinThickness, data_obj.Insulin, data_obj.BMI,
-            data_obj.DiabetesPedigreeFunction, data_obj.Age
-        ]])
-        scaler = scalers[disease]
-        input_scaled = scaler.transform(input_array)
-        prediction = model.predict(input_scaled)[0]
-        result = "Positive" if prediction == 1 else "Negative"
+            
+            # Check if model is loaded
+            if "diabetes" not in models or "diabetes" not in scalers:
+                raise HTTPException(status_code=503, detail="Diabetes model not available")
+            
+            # Convert to numpy array and scale
+            features = np.array([[
+                data_obj.Pregnancies, data_obj.Glucose, data_obj.BloodPressure,
+                data_obj.SkinThickness, data_obj.Insulin, data_obj.BMI,
+                data_obj.DiabetesPedigreeFunction, data_obj.Age
+            ]])
+            
+            features_scaled = scalers["diabetes"].transform(features)
+            prediction = models["diabetes"].predict(features_scaled)[0]
+            probability = models["diabetes"].predict_proba(features_scaled)[0]
+            
+            result = {
+                "prediction": "Diabetes Detected" if prediction == 1 else "No Diabetes",
+                "probability": {
+                    "no_diabetes": float(probability[0]),
+                    "diabetes": float(probability[1])
+                }
+            }
+            
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=f"Error in diabetes prediction: {str(e)}")
 
     elif disease == "skin":
         try:
-            # Handle image-based prediction like the original Flask app
+            # Handle image-based prediction
             if 'image' not in input_data:
                 raise HTTPException(status_code=422, detail="Image is required for skin disease prediction")
+            
+            # Check if model is loaded
+            if "skin" not in models:
+                raise HTTPException(status_code=503, detail="Skin disease model not available")
             
             # Decode base64 image
             image_data = input_data['image']
@@ -99,20 +126,35 @@ def predict_disease(disease: str, input_data: dict):
             x = np.expand_dims(x, axis=0)
             
             # Make prediction
-            preds = model.predict(x)
+            preds = models["skin"].predict(x)
             index = ['Acne', 'Melanoma', 'Peeling skin', 'Ring worm', 'Vitiligo']
             label = np.argmax(preds, axis=1)[0]
-            result = index[label]
+            confidence = float(np.max(preds, axis=1)[0])
+            
+            result = {
+                "prediction": index[label],
+                "confidence": confidence,
+                "all_probabilities": {
+                    index[i]: float(preds[0][i]) for i in range(len(index))
+                }
+            }
             
         except Exception as e:
-            raise HTTPException(status_code=422, detail=f"Invalid input for skin disease: {str(e)}")
+            raise HTTPException(status_code=422, detail=f"Error in skin disease prediction: {str(e)}")
 
-    return {"disease": disease, "prediction": result}
+    else:
+        raise HTTPException(status_code=404, detail=f"Model not found for disease: {disease}")
+
+    return {"disease": disease, "result": result}
 
 @router.post("/skin/upload")
 async def predict_skin_disease_upload(file: UploadFile = File(...)):
     """Alternative endpoint for direct file upload"""
     try:
+        # Check if model is loaded
+        if "skin" not in models:
+            raise HTTPException(status_code=503, detail="Skin disease model not available")
+        
         # Read and preprocess the uploaded image
         contents = await file.read()
         img = Image.open(io.BytesIO(contents))
@@ -127,9 +169,17 @@ async def predict_skin_disease_upload(file: UploadFile = File(...)):
         preds = model.predict(x)
         index = ['Acne', 'Melanoma', 'Peeling skin', 'Ring worm', 'Vitiligo']
         label = np.argmax(preds, axis=1)[0]
-        result = index[label]
+        confidence = float(np.max(preds, axis=1)[0])
         
-        return {"disease": "skin", "prediction": result}
+        result = {
+            "prediction": index[label],
+            "confidence": confidence,
+            "all_probabilities": {
+                index[i]: float(preds[0][i]) for i in range(len(index))
+            }
+        }
+        
+        return {"disease": "skin", "result": result}
         
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Error processing image: {str(e)}")
