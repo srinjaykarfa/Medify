@@ -11,7 +11,8 @@ import SimpleLanding from './pages/SimpleLanding';
 // Authentication Pages
 import Register from './pages/Register';
 import Signin from './pages/Signin';
-import AdminLoginPg from './pages/AdminLoginPg';
+import LabReports from './pages/LabReports';
+import TestPage from './TestPage';
 
 // Patient Pages
 import Home from './pages/Home';
@@ -24,7 +25,7 @@ import Emergency from './pages/Emergency';
 import QuickCheckup from './pages/QuickCheckup';
 import HealthMetrics from './pages/HealthMetrics';
 import HealthPredict from './pages/HealthPredict';
-import Appointments from './pages/Appointments';
+
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import Contact from './pages/Contact';
@@ -36,6 +37,7 @@ import DoctorProtectedRoute from './components/DoctorProtectedRoute';
 
 // Admin Pages
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLoginPg from './pages/AdminLoginPg';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 function App() {
@@ -235,11 +237,6 @@ function App() {
                         <HealthPredict />
                       </ProtectedRoute>
                     } />
-                    <Route path="/appointments" element={
-                      <ProtectedRoute allowedRoles={['patient']}>
-                        <Appointments />
-                      </ProtectedRoute>
-                    } />
                     <Route path="/landing" element={
                       <ProtectedRoute allowedRoles={['patient']}>
                         <Landing />
@@ -263,6 +260,11 @@ function App() {
                     <Route path="/about" element={
                       <ProtectedRoute allowedRoles={['patient']}>
                         <About />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/lab-reports" element={
+                      <ProtectedRoute allowedRoles={['patient']}>
+                        <LabReports />
                       </ProtectedRoute>
                     } />
                     

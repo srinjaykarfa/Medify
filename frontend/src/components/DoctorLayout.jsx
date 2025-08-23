@@ -24,7 +24,6 @@ const DoctorLayout = ({ children }) => {
 
   const navigationItems = [
     { name: 'Dashboard', href: '/doctor-dashboard', icon: HomeIcon },
-    { name: 'Appointments', href: '/doctor-appointments', icon: CalendarDaysIcon },
     { name: 'Patients', href: '/doctor-patients', icon: UserGroupIcon },
     { name: 'Analytics', href: '/doctor-analytics', icon: ChartBarIcon },
   ];

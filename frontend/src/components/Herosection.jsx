@@ -47,20 +47,6 @@ export default function HeroSection() {
           >
             <motion.button
               whileHover={{
-                scale: 1.02,
-                backgroundColor: "#2563eb",
-                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-              }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              onClick={() => navigate("/appointments")}
-              className="bg-blue-500 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all duration-300"
-            >
-              Book Appointment
-            </motion.button>
-
-            <motion.button
-              whileHover={{
                 scale: 1.015,
                 backgroundColor: "#b91c1c",
                 boxShadow: "0 6px 18px rgba(185, 28, 28, 0.3)",

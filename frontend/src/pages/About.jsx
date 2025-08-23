@@ -56,12 +56,6 @@ const features = [
     link: "/quick-checkup",
   },
   {
-    name: "Appointments",
-    icon: <PiCalendarCheckFill size={40} />,
-    bg: "from-blue-200 to-blue-400",
-    link: "/appointments",
-  },
-  {
     name: "Health Metrics",
     icon: <PiChartLineFill size={40} />,
     bg: "from-green-200 to-green-400",

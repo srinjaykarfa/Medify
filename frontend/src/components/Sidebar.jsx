@@ -9,6 +9,7 @@ import {
   XMarkIcon,
   Bars3Icon,
   UserCircleIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/solid';
 import logo from '../assets/logo_arogya.png';
 
@@ -23,8 +24,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const navigation = [
     { name: 'Home', href: '/dashboard', icon: HomeIcon },
     { name: 'AI Chat', href: '/chat', icon: ChatBubbleLeftIcon },
+    { name: 'Lab Reports', href: '/lab-reports', icon: DocumentTextIcon },
     { name: 'Quick Checkup', href: '/quick-checkup', icon: UserCircleIcon },
-    { name: 'Appointments', href: '/appointments', icon: CalendarIcon },
     { name: 'Health Metrics', href: '/health-metrics', icon: HeartIcon },
     { name: 'Health Predict', href: '/health-predict', icon: HeartIcon },
     {

@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import DoctorCard from '../components/DoctorCard';
 import toast from 'react-hot-toast';
+import BASE_URL from '../config/api';
 
 const specializations = [
   "All",
@@ -51,7 +52,8 @@ const Appointments = () => {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/api/users/my-appointments', {
+      // Fetch patient appointments
+      const response = await fetch(`/api/users/my-appointments`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -60,7 +62,7 @@ const Appointments = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setAppointments(data.appointments || []);
+        setAppointments(data || []);
       }
     } catch (error) {
       console.error('Error fetching appointments:', error);
@@ -71,7 +73,7 @@ const Appointments = () => {
   const fetchApprovedDoctors = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/approved-doctors');
+      const response = await fetch(`${BASE_URL}/api/approved-doctors`);
       
       if (response.ok) {
         const data = await response.json();
@@ -136,17 +138,17 @@ const Appointments = () => {
         return;
       }
 
+      // Build payload matching backend AppointmentRequest model
       const appointmentData = {
         doctor_id: selectedDoctor.id,
-        doctor_name: selectedDoctor.name,
-        date: selectedDate,
-        time: selectedTime,
-        symptoms: symptoms || '',
-        consultation_fee: selectedDoctor.consultationFee,
-        appointment_type: 'scheduled'
+        appointment_date: selectedDate,
+        appointment_time: selectedTime,
+        notes: symptoms || ''
       };
 
-      const response = await fetch('http://localhost:8000/api/users/book-appointment', {
+      const response = await fetch(`${BASE_URL}/api/users/book-appointment`, {
+        // enable CORS
+        mode: 'cors',
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -156,7 +158,7 @@ const Appointments = () => {
       });
 
       if (response.ok) {
-        const result = await response.json();
+        await response.json();
         toast.success('Appointment booked successfully!');
         setShowBookingModal(false);
         setSelectedDoctor(null);
@@ -170,7 +172,7 @@ const Appointments = () => {
       }
     } catch (error) {
       console.error('Error booking appointment:', error);
-      toast.error('Network error. Please try again.');
+      toast.error(error.message || 'Network error. Please try again.');
     }
   };
 
@@ -268,7 +270,7 @@ const Appointments = () => {
               <h3 className="text-lg font-bold text-blue-600 mb-4">Upcoming Appointments</h3>
               <div className="space-y-4">
                 {appointments
-                  .filter(apt => new Date(apt.date) >= new Date())
+                  .filter(apt => new Date(apt.appointment_date) >= new Date())
                   .map((appointment, index) => (
                     <div key={index} className="border border-blue-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 hover:bg-blue-50">
                       <div className="flex items-center justify-between">
@@ -278,7 +280,7 @@ const Appointments = () => {
                           </div>
                           <div>
                             <h4 className="font-bold text-blue-700">{appointment.doctor_name}</h4>
-                            <p className="text-sm text-gray-600">{appointment.date} at {appointment.time}</p>
+                            <p className="text-sm text-gray-600">{appointment.appointment_date} at {appointment.appointment_time}</p>
                             {appointment.symptoms && (
                               <p className="text-sm text-gray-500">Symptoms: {appointment.symptoms}</p>
                             )}
@@ -301,7 +303,7 @@ const Appointments = () => {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Past Appointments</h3>
               <div className="space-y-4">
                 {appointments
-                  .filter(apt => new Date(apt.date) < new Date())
+                  .filter(apt => new Date(apt.appointment_date) < new Date())
                   .map((appointment, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4 opacity-75">
                       <div className="flex items-center justify-between">
@@ -311,7 +313,7 @@ const Appointments = () => {
                           </div>
                           <div>
                             <h4 className="font-semibold text-gray-900">{appointment.doctor_name}</h4>
-                            <p className="text-sm text-gray-600">{appointment.date} at {appointment.time}</p>
+                            <p className="text-sm text-gray-600">{appointment.appointment_date} at {appointment.appointment_time}</p>
                             {appointment.symptoms && (
                               <p className="text-sm text-gray-500">Symptoms: {appointment.symptoms}</p>
                             )}

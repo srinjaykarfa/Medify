@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: white; }
+        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .lab-name { font-size: 24px; font-weight: bold; color: #2563eb; }
+        .report-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .report-table th, .report-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .report-table th { background-color: #f2f2f2; }
+        .normal { color: green; font-weight: bold; }
+        .high { color: red; font-weight: bold; }
+        .low { color: orange; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="lab-name">MEDIFY+ DIAGNOSTIC CENTER</div>
+        <p>123 Health Street, Medical City<br>Phone: +91-9876543210</p>
+    </div>
+    
+    <h2>BLOOD TEST REPORT</h2>
+    
+    <p><strong>Patient Name:</strong> John Doe</p>
+    <p><strong>Age:</strong> 35 Years</p>
+    <p><strong>Gender:</strong> Male</p>
+    <p><strong>Report Date:</strong> 17-Aug-2025</p>
+    <p><strong>Sample Collection:</strong> 16-Aug-2025</p>
+    
+    <table class="report-table">
+        <tr>
+            <th>Test Parameter</th>
+            <th>Result</th>
+            <th>Normal Range</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Blood Sugar (Fasting)</td>
+            <td>95 mg/dL</td>
+            <td>70-100 mg/dL</td>
+            <td class="normal">NORMAL</td>
+        </tr>
+        <tr>
+            <td>Blood Sugar (Random)</td>
+            <td>140 mg/dL</td>
+            <td>&lt;140 mg/dL</td>
+            <td class="normal">NORMAL</td>
+        </tr>
+        <tr>
+            <td>Total Cholesterol</td>
+            <td>220 mg/dL</td>
+            <td>&lt;200 mg/dL</td>
+            <td class="high">HIGH</td>
+        </tr>
+        <tr>
+            <td>HDL Cholesterol</td>
+            <td>45 mg/dL</td>
+            <td>&gt;40 mg/dL (M)</td>
+            <td class="normal">NORMAL</td>
+        </tr>
+        <tr>
+            <td>LDL Cholesterol</td>
+            <td>155 mg/dL</td>
+            <td>&lt;100 mg/dL</td>
+            <td class="high">HIGH</td>
+        </tr>
+        <tr>
+            <td>Hemoglobin</td>
+            <td>14.2 g/dL</td>
+            <td>13.5-17.5 g/dL</td>
+            <td class="normal">NORMAL</td>
+        </tr>
+        <tr>
+            <td>White Blood Cells</td>
+            <td>7,500 /μL</td>
+            <td>4,000-11,000 /μL</td>
+            <td class="normal">NORMAL</td>
+        </tr>
+        <tr>
+            <td>Platelets</td>
+            <td>250,000 /μL</td>
+            <td>150,000-450,000 /μL</td>
+            <td class="normal">NORMAL</td>
+        </tr>
+    </table>
+    
+    <div style="margin-top: 30px;">
+        <p><strong>Doctor's Remarks:</strong></p>
+        <p>Patient shows elevated cholesterol levels. Recommend dietary modifications and regular exercise. Follow-up required after 3 months.</p>
+    </div>
+    
+    <div style="margin-top: 40px; text-align: right;">
+        <p><strong>Dr. Sarah Wilson</strong><br>
+        Pathologist<br>
+        License No: MP/2345/2020</p>
+    </div>
+</body>
+</html>
