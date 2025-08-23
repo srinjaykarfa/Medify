@@ -19,11 +19,19 @@ const Signin = ({ setIsAuthenticated, onAuthSuccess, setUserRole }) => {
     }
     setLoading(true);
     try {
+      console.log('Attempting login to:', `${BASE_URL}/api/users/login`);
       const response = await fetch(`${BASE_URL}/api/users/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
         body: JSON.stringify({ email, password }),
       });
+      
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
         
@@ -57,11 +65,15 @@ const Signin = ({ setIsAuthenticated, onAuthSuccess, setUserRole }) => {
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.detail || 'Invalid credentials');
+        setError(errorData.detail || `Server returned ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      setError('An error occurred during sign in');
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        setError('Unable to connect to server. Please check if the backend is running on port 8000.');
+      } else {
+        setError('An error occurred during sign in: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }

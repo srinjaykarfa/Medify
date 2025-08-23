@@ -16,17 +16,29 @@ router = APIRouter()
 
 base_path = os.path.join(os.path.dirname(__file__), "..", "ml_models")
 
-# Load models and scalers
-models = {
-    "heart": joblib.load(os.path.join(base_path, "heart_disease_model.pkl")),
-    "diabetes": joblib.load(os.path.join(base_path, "diabetes_model_.pkl")),
-    "skin": tf.keras.models.load_model(os.path.join(base_path, "skindisease.h5")),
-}
+# Load models and scalers with error handling
+models = {}
+scalers = {}
 
-scalers = {
-    "heart": joblib.load(os.path.join(base_path, "heart_scaler.pkl")),
-    "diabetes": joblib.load(os.path.join(base_path, "scaler.pkl")),
-}
+try:
+    models["heart"] = joblib.load(os.path.join(base_path, "heart_disease_model.pkl"))
+    scalers["heart"] = joblib.load(os.path.join(base_path, "heart_scaler.pkl"))
+    print("✅ Heart disease model loaded successfully")
+except Exception as e:
+    print(f"❌ Failed to load heart disease model: {e}")
+
+try:
+    models["diabetes"] = joblib.load(os.path.join(base_path, "diabetes_model_.pkl"))
+    scalers["diabetes"] = joblib.load(os.path.join(base_path, "scaler.pkl"))
+    print("✅ Diabetes model loaded successfully")
+except Exception as e:
+    print(f"❌ Failed to load diabetes model: {e}")
+
+try:
+    # models["skin"] = tf.keras.models.load_model(os.path.join(base_path, "skindisease.h5"))
+    print("⚠️ Skin disease model temporarily disabled due to compatibility issues")
+except Exception as e:
+    print(f"❌ Failed to load skin disease model: {e}")
 
 @router.post("/{disease}")
 def predict_disease(disease: str, input_data: dict):
