@@ -25,6 +25,7 @@ import Emergency from './pages/Emergency';
 import QuickCheckup from './pages/QuickCheckup';
 import HealthMetrics from './pages/HealthMetrics';
 import HealthPredict from './pages/HealthPredict';
+import AppointmentBooking from './pages/AppointmentBooking';
 
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
@@ -265,6 +266,11 @@ function App() {
                     <Route path="/lab-reports" element={
                       <ProtectedRoute allowedRoles={['patient']}>
                         <LabReports />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/appointments/book" element={
+                      <ProtectedRoute allowedRoles={['patient']}>
+                        <AppointmentBooking />
                       </ProtectedRoute>
                     } />
                     

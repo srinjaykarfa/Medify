@@ -24,6 +24,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const navigation = [
     { name: 'Home', href: '/dashboard', icon: HomeIcon },
     { name: 'AI Chat', href: '/chat', icon: ChatBubbleLeftIcon },
+    { name: 'Appointments', href: '/appointments/book', icon: CalendarIcon },
     { name: 'Lab Reports', href: '/lab-reports', icon: DocumentTextIcon },
     { name: 'Quick Checkup', href: '/quick-checkup', icon: UserCircleIcon },
     { name: 'Health Metrics', href: '/health-metrics', icon: HeartIcon },

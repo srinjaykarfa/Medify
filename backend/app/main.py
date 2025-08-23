@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient  # Changed from motor.motor_asyncio
 from dotenv import load_dotenv
 import os
-from .api import chat, users, admin, doctor, lab_reports, predict
+from .api import chat, users, admin, doctor, lab_reports, predict, appointments
 from fastapi.staticfiles import StaticFiles
 from .core.mock_db import get_mock_db
 
@@ -60,6 +60,7 @@ app.include_router(predict.router, prefix="/api/predict", tags=["prediction"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(doctor.router, prefix="/api/doctor", tags=["doctor"])
 app.include_router(lab_reports.router, prefix="/api/lab-reports", tags=["lab-reports"])
+app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
 # app.include_router(lab_reports.router, prefix="/api/lab-reports", tags=["lab-reports"])
 
 # Basic endpoint
