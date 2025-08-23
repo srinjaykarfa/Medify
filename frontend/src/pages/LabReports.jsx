@@ -13,6 +13,9 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
+// API Base URL
+const API_BASE_URL = 'http://localhost:8000';
+
 const LabReports = () => {
   console.log('LabReports component loaded successfully!');
   const navigate = useNavigate();
@@ -48,7 +51,7 @@ const LabReports = () => {
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/lab-reports/my-reports', {
+      const response = await fetch(`${API_BASE_URL}/api/lab-reports/my-reports`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -71,7 +74,7 @@ const LabReports = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/lab-reports/analytics', {
+      const response = await fetch(`${API_BASE_URL}/api/lab-reports/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -97,14 +100,14 @@ const LabReports = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const formData = new FormData();
-      formData.append('report_file', uploadForm.file);
+      formData.append('file', uploadForm.file);
       formData.append('report_name', uploadForm.report_name);
       formData.append('test_date', uploadForm.test_date);
       formData.append('lab_name', uploadForm.lab_name);
       formData.append('doctor_name', uploadForm.doctor_name);
       formData.append('notes', uploadForm.notes);
 
-      const response = await fetch('/api/lab-reports/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/lab-reports/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -149,7 +152,7 @@ const LabReports = () => {
   const viewReportDetails = async (reportId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/lab-reports/report/${reportId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/lab-reports/report/${reportId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -172,7 +175,7 @@ const LabReports = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/lab-reports/report/${reportId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/lab-reports/report/${reportId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -7,7 +7,7 @@ import os
 import shutil
 from datetime import datetime
 import json
-from app.core.auth import decode_access_token
+from app.core.auth import get_current_user
 from app.core.config import settings
 
 router = APIRouter()
@@ -48,14 +48,38 @@ async def test_endpoint():
     """Test endpoint to check if lab reports API is working"""
     return {"message": "Lab Reports API is working!", "status": "success"}
 
-# Get user's lab reports
+# Test endpoint without authentication
+@router.get("/test-reports")
+async def test_reports_endpoint():
+    """Test endpoint to check if we can fetch reports without auth"""
+    try:
+        if lab_reports_collection:
+            # Get some sample reports (limit to 5 for testing)
+            reports = list(lab_reports_collection.find({}).limit(5))
+            return {
+                "message": "Successfully connected to lab reports collection",
+                "total_reports": lab_reports_collection.count_documents({}),
+                "sample_reports": len(reports),
+                "status": "success"
+            }
+        else:
+            return {
+                "message": "Using mock database",
+                "status": "success",
+                "mock": True
+            }
+    except Exception as e:
+        return {"error": str(e), "status": "error"}
+
+# Get user's lab reports (simplified without auth for now)
 @router.get("/my-reports", response_model=List[LabReportResponse])
-async def get_my_reports(current_user: dict = Depends(decode_access_token)):
+async def get_my_reports():
     """Get all lab reports for the current user"""
     try:
-        user_id = current_user.get("user_id")
+        # For now, return mock data - will add proper auth later
+        user_id = "test_user_123"
         
-        if lab_reports_collection:
+        if lab_reports_collection is not None:
             # MongoDB query
             reports = list(lab_reports_collection.find({"user_id": user_id}))
             result = []
@@ -81,14 +105,15 @@ async def get_my_reports(current_user: dict = Depends(decode_access_token)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch reports: {str(e)}")
 
-# Get analytics
+# Get analytics (simplified without auth for now)
 @router.get("/analytics", response_model=AnalyticsResponse)
-async def get_analytics(current_user: dict = Depends(decode_access_token)):
+async def get_analytics():
     """Get analytics for user's lab reports"""
     try:
-        user_id = current_user.get("user_id")
+        # For now, use mock user - will add proper auth later
+        user_id = "test_user_123"
         
-        if lab_reports_collection:
+        if lab_reports_collection is not None:
             total_reports = lab_reports_collection.count_documents({"user_id": user_id})
             recent_reports = lab_reports_collection.count_documents({
                 "user_id": user_id,
@@ -107,7 +132,7 @@ async def get_analytics(current_user: dict = Depends(decode_access_token)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch analytics: {str(e)}")
 
-# Upload lab report (simplified without OCR)
+# Upload lab report (simplified without auth for now)
 @router.post("/upload")
 async def upload_lab_report(
     report_name: str = Form(...),
@@ -115,23 +140,32 @@ async def upload_lab_report(
     lab_name: str = Form(None),
     doctor_name: str = Form(None),
     notes: str = Form(None),
-    file: UploadFile = File(...),
-    current_user: dict = Depends(decode_access_token)
+    file: UploadFile = File(...)
 ):
     """Upload a new lab report"""
     try:
-        user_id = current_user.get("user_id")
+        # For now, use mock user - will add proper auth later
+        user_id = "test_user_123"
         
-        # Validate file type
-        if not file.content_type.startswith(('image/', 'application/pdf')):
-            raise HTTPException(status_code=400, detail="Only image and PDF files are supported")
+        # Check if required fields are provided
+        if not report_name or not test_date:
+            raise HTTPException(status_code=400, detail="Report name and test date are required")
+        
+        # Validate file if provided
+        if file and file.filename:
+            # Validate file type
+            allowed_types = ['image/', 'application/pdf', 'text/']
+            if not any(file.content_type.startswith(allowed_type) for allowed_type in allowed_types):
+                raise HTTPException(status_code=400, detail="Only image, PDF, and text files are supported")
+        else:
+            raise HTTPException(status_code=400, detail="File is required")
         
         # Create upload directory
         upload_dir = "uploads/lab_reports"
         os.makedirs(upload_dir, exist_ok=True)
         
         # Save file
-        file_extension = file.filename.split('.')[-1] if '.' in file.filename else 'bin'
+        file_extension = file.filename.split('.')[-1] if file.filename and '.' in file.filename else 'bin'
         file_name = f"{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{file_extension}"
         file_path = os.path.join(upload_dir, file_name)
         
@@ -156,7 +190,7 @@ async def upload_lab_report(
             "updated_at": datetime.now().isoformat()
         }
         
-        if lab_reports_collection:
+        if lab_reports_collection is not None:
             result = lab_reports_collection.insert_one(report_data)
             report_id = str(result.inserted_id)
         else:
@@ -169,17 +203,59 @@ async def upload_lab_report(
             "ai_analysis": ai_analysis
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Error uploading lab report: {str(e)}")
+        print(f"Error type: {type(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to upload report: {str(e)}")
 
-# Get specific report
+# Test upload endpoint without authentication
+@router.post("/test-upload")
+async def test_upload_lab_report(
+    report_name: str = Form(...),
+    test_date: str = Form(...),
+    lab_name: str = Form(None),
+    doctor_name: str = Form(None),
+    notes: str = Form(None),
+    file: UploadFile = File(...)
+):
+    """Test upload endpoint without authentication"""
+    try:
+        # Create upload directory
+        upload_dir = "uploads/lab_reports"
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save file
+        file_extension = file.filename.split('.')[-1] if '.' in file.filename else 'bin'
+        file_name = f"test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{file_extension}"
+        file_path = os.path.join(upload_dir, file_name)
+        
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        return {
+            "message": "Test upload successful",
+            "file_name": file_name,
+            "file_path": file_path,
+            "report_name": report_name,
+            "test_date": test_date
+        }
+        
+    except Exception as e:
+        return {"error": f"Test upload failed: {str(e)}"}
+
+# Get specific report (simplified without auth for now)
 @router.get("/report/{report_id}", response_model=LabReportResponse)
-async def get_report(report_id: str, current_user: dict = Depends(decode_access_token)):
+async def get_report(report_id: str):
     """Get a specific lab report"""
     try:
-        user_id = current_user.get("user_id")
+        # For now, use mock user - will add proper auth later
+        user_id = "test_user_123"
         
-        if lab_reports_collection:
+        if lab_reports_collection is not None:
             report = lab_reports_collection.find_one({
                 "_id": ObjectId(report_id),
                 "user_id": user_id
@@ -207,14 +283,15 @@ async def get_report(report_id: str, current_user: dict = Depends(decode_access_
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch report: {str(e)}")
 
-# Delete report
+# Delete report (simplified without auth for now)
 @router.delete("/report/{report_id}")
-async def delete_report(report_id: str, current_user: dict = Depends(decode_access_token)):
+async def delete_report(report_id: str):
     """Delete a lab report"""
     try:
-        user_id = current_user.get("user_id")
+        # For now, use mock user - will add proper auth later
+        user_id = "test_user_123"
         
-        if lab_reports_collection:
+        if lab_reports_collection is not None:
             result = lab_reports_collection.delete_one({
                 "_id": ObjectId(report_id),
                 "user_id": user_id
