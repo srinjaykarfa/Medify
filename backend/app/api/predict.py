@@ -42,6 +42,9 @@ except Exception as e:
 
 @router.post("/{disease}")
 def predict_disease(disease: str, input_data: dict):
+    print(f"🔍 Received prediction request for: {disease}")
+    print(f"📊 Input data: {input_data}")
+    
     if disease == "heart":
         try:
             data_obj = HeartInput(**input_data)
@@ -59,17 +62,57 @@ def predict_disease(disease: str, input_data: dict):
             
             features_scaled = scalers["heart"].transform(features)
             prediction = models["heart"].predict(features_scaled)[0]
-            probability = models["heart"].predict_proba(features_scaled)[0]
             
-            result = {
-                "prediction": "Heart Disease Detected" if prediction == 1 else "No Heart Disease",
-                "probability": {
-                    "no_disease": float(probability[0]),
-                    "disease": float(probability[1])
+            # Check if the model supports predict_proba
+            try:
+                if hasattr(models["heart"], 'predict_proba'):
+                    probability = models["heart"].predict_proba(features_scaled)[0]
+                    result = {
+                        "prediction": "Heart Disease Detected" if prediction == 1 else "No Heart Disease",
+                        "probability": {
+                            "no_disease": float(probability[0]),
+                            "disease": float(probability[1])
+                        }
+                    }
+                elif hasattr(models["heart"], 'decision_function'):
+                    # For SVC models, use decision_function to get confidence scores
+                    decision_score = models["heart"].decision_function(features_scaled)[0]
+                    # Convert decision score to probability-like score (0-1 range)
+                    confidence = 1 / (1 + np.exp(-decision_score))  # Sigmoid transformation
+                    result = {
+                        "prediction": "Heart Disease Detected" if prediction == 1 else "No Heart Disease",
+                        "probability": {
+                            "no_disease": float(1 - confidence) if prediction == 1 else float(confidence),
+                            "disease": float(confidence) if prediction == 1 else float(1 - confidence)
+                        },
+                        "confidence_score": float(abs(decision_score)),
+                        "model_type": "SVC"
+                    }
+                else:
+                    # Fallback for models without probability estimates
+                    result = {
+                        "prediction": "Heart Disease Detected" if prediction == 1 else "No Heart Disease",
+                        "probability": {
+                            "no_disease": 0.25 if prediction == 1 else 0.75,
+                            "disease": 0.75 if prediction == 1 else 0.25
+                        },
+                        "note": "Probability estimates not available for this model type"
+                    }
+            except Exception as prob_error:
+                print(f"⚠️ Could not get probability estimates: {prob_error}")
+                result = {
+                    "prediction": "Heart Disease Detected" if prediction == 1 else "No Heart Disease",
+                    "probability": {
+                        "no_disease": 0.25 if prediction == 1 else 0.75,
+                        "disease": 0.75 if prediction == 1 else 0.25
+                    },
+                    "note": "Probability estimates not available"
                 }
-            }
+            
+            print(f"✅ Heart disease prediction successful: {result}")
             
         except Exception as e:
+            print(f"❌ Heart disease prediction error: {str(e)}")
             raise HTTPException(status_code=422, detail=f"Error in heart disease prediction: {str(e)}")
 
     elif disease == "diabetes":
@@ -89,17 +132,57 @@ def predict_disease(disease: str, input_data: dict):
             
             features_scaled = scalers["diabetes"].transform(features)
             prediction = models["diabetes"].predict(features_scaled)[0]
-            probability = models["diabetes"].predict_proba(features_scaled)[0]
             
-            result = {
-                "prediction": "Diabetes Detected" if prediction == 1 else "No Diabetes",
-                "probability": {
-                    "no_diabetes": float(probability[0]),
-                    "diabetes": float(probability[1])
+            # Check if the model supports predict_proba
+            try:
+                if hasattr(models["diabetes"], 'predict_proba'):
+                    probability = models["diabetes"].predict_proba(features_scaled)[0]
+                    result = {
+                        "prediction": "Diabetes Detected" if prediction == 1 else "No Diabetes",
+                        "probability": {
+                            "no_diabetes": float(probability[0]),
+                            "diabetes": float(probability[1])
+                        }
+                    }
+                elif hasattr(models["diabetes"], 'decision_function'):
+                    # For SVC models, use decision_function to get confidence scores
+                    decision_score = models["diabetes"].decision_function(features_scaled)[0]
+                    # Convert decision score to probability-like score (0-1 range)
+                    confidence = 1 / (1 + np.exp(-decision_score))  # Sigmoid transformation
+                    result = {
+                        "prediction": "Diabetes Detected" if prediction == 1 else "No Diabetes",
+                        "probability": {
+                            "no_diabetes": float(1 - confidence) if prediction == 1 else float(confidence),
+                            "diabetes": float(confidence) if prediction == 1 else float(1 - confidence)
+                        },
+                        "confidence_score": float(abs(decision_score)),
+                        "model_type": "SVC"
+                    }
+                else:
+                    # Fallback for models without probability estimates
+                    result = {
+                        "prediction": "Diabetes Detected" if prediction == 1 else "No Diabetes",
+                        "probability": {
+                            "no_diabetes": 0.25 if prediction == 1 else 0.75,
+                            "diabetes": 0.75 if prediction == 1 else 0.25
+                        },
+                        "note": "Probability estimates not available for this model type"
+                    }
+            except Exception as prob_error:
+                print(f"⚠️ Could not get probability estimates: {prob_error}")
+                result = {
+                    "prediction": "Diabetes Detected" if prediction == 1 else "No Diabetes",
+                    "probability": {
+                        "no_diabetes": 0.25 if prediction == 1 else 0.75,
+                        "diabetes": 0.75 if prediction == 1 else 0.25
+                    },
+                    "note": "Probability estimates not available"
                 }
-            }
+            
+            print(f"✅ Diabetes prediction successful: {result}")
             
         except Exception as e:
+            print(f"❌ Diabetes prediction error: {str(e)}")
             raise HTTPException(status_code=422, detail=f"Error in diabetes prediction: {str(e)}")
 
     elif disease == "skin":

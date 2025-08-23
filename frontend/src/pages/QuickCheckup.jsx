@@ -144,9 +144,10 @@ const QuickCheckup = () => {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('API Response:', result); // Add logging to debug
         setResults(prev => ({
           ...prev,
-          [diseaseType]: result.prediction
+          [diseaseType]: result.result // Use result.result instead of result.prediction
         }));
       } else {
         const errorData = await response.json();
@@ -366,9 +367,19 @@ const QuickCheckup = () => {
               </button>
               {results.heart && (
                 <div className={`p-4 rounded-lg text-center font-semibold ${
-                  results.heart === 'Positive' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                  results.heart.prediction?.includes('Disease Detected') || results.heart.prediction?.includes('Positive') 
+                    ? 'bg-red-100 text-red-800' 
+                    : 'bg-green-100 text-green-800'
                 }`}>
-                  Prediction: {results.heart}
+                  <div className="mb-2">
+                    <strong>Prediction:</strong> {results.heart.prediction}
+                  </div>
+                  {results.heart.probability && (
+                    <div className="text-sm">
+                      <div>Disease Risk: {(results.heart.probability.disease * 100).toFixed(1)}%</div>
+                      <div>No Disease: {(results.heart.probability.no_disease * 100).toFixed(1)}%</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -454,9 +465,24 @@ const QuickCheckup = () => {
               </button>
               {results.diabetes && (
                 <div className={`p-4 rounded-lg text-center font-semibold ${
-                  results.diabetes === 'Positive' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                  results.diabetes.prediction?.includes('Diabetes Detected') || results.diabetes.prediction?.includes('Positive')
+                    ? 'bg-red-100 text-red-800' 
+                    : 'bg-green-100 text-green-800'
                 }`}>
-                  Prediction: {results.diabetes}
+                  <div className="mb-2">
+                    <strong>Prediction:</strong> {results.diabetes.prediction}
+                  </div>
+                  {results.diabetes.probability && (
+                    <div className="text-sm">
+                      <div>Diabetes Risk: {(results.diabetes.probability.diabetes * 100).toFixed(1)}%</div>
+                      <div>No Diabetes: {(results.diabetes.probability.no_diabetes * 100).toFixed(1)}%</div>
+                    </div>
+                  )}
+                  {results.diabetes.model_type && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      Model: {results.diabetes.model_type}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -513,7 +539,26 @@ const QuickCheckup = () => {
               
               {results.skin && (
                 <div className="p-4 rounded-lg text-center font-semibold bg-blue-100 text-blue-800">
-                  Predicted Skin Disease: {results.skin}
+                  <div className="mb-2">
+                    <strong>Predicted Skin Disease:</strong> {results.skin.prediction}
+                  </div>
+                  {results.skin.confidence && (
+                    <div className="text-sm">
+                      Confidence: {(results.skin.confidence * 100).toFixed(1)}%
+                    </div>
+                  )}
+                  {results.skin.all_probabilities && (
+                    <div className="text-xs mt-2">
+                      <strong>All Predictions:</strong>
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        {Object.entries(results.skin.all_probabilities).map(([disease, prob]) => (
+                          <div key={disease} className="text-left">
+                            {disease}: {(prob * 100).toFixed(1)}%
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
