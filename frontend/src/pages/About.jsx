@@ -9,7 +9,7 @@ import avatar from "../assets/avatar-placeholder.png"; // Use your placeholder a
 const developers = [
   
   {
-    name: "Rishov Chakraborty",
+    name: "Jaydeep sardar",
     desc: " Team Lead , Backend King & database Ninja.",
     facebook: "https://facebook.com",
     instagram: "https://instagram.com",
@@ -17,7 +17,7 @@ const developers = [
     github: "https://github.com",
   },
   {
-    name: "Rishav Kali",
+    name: "Srinjay karfa",
     desc: "The creative lead and UI perfectionist",
     facebook: "https://facebook.com",
     instagram: "https://instagram.com",
@@ -25,7 +25,7 @@ const developers = [
     github: "https://github.com",
   },
   {
-    name: "Poulami Das",
+    name: "Sreshtha Dutta",
     desc: "Queen of GenAI, Machine Learning, and Seamless Deployments.",
     facebook: "https://facebook.com",
     instagram: "https://instagram.com",
@@ -33,7 +33,7 @@ const developers = [
     github: "https://github.com",
   },
   {
-    name: "Koyel Das",
+    name: "Ayoshi Bose",
     desc: "Data cruncher and smart feature builder.",
     facebook: "https://facebook.com",
     instagram: "https://instagram.com",
