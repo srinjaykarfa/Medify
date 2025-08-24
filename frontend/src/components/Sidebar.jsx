@@ -10,6 +10,7 @@ import {
   Bars3Icon,
   UserCircleIcon,
   DocumentTextIcon,
+  BellIcon,
 } from '@heroicons/react/24/solid';
 import logo from '../assets/logo_arogya.png';
 
@@ -25,6 +26,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { name: 'Home', href: '/dashboard', icon: HomeIcon },
     { name: 'AI Chat', href: '/chat', icon: ChatBubbleLeftIcon },
     { name: 'Appointments', href: '/appointments/book', icon: CalendarIcon },
+    { name: 'Medicine Reminder', href: '/medicine-reminder', icon: BellIcon },
     { name: 'Lab Reports', href: '/lab-reports', icon: DocumentTextIcon },
     { name: 'Quick Checkup', href: '/quick-checkup', icon: UserCircleIcon },
     { name: 'Health Metrics', href: '/health-metrics', icon: HeartIcon },

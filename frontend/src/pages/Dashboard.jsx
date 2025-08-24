@@ -11,6 +11,7 @@ import {
   BellIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
+import HealthScore from '../components/HealthScore';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Dashboard = () => {
       description: 'Schedule with verified doctors',
       icon: CalendarDaysIcon,
       color: 'from-blue-500 to-blue-600',
-      action: () => navigate('/appointments'),
+      action: () => navigate('/appointments/book'),
     },
     {
       title: 'AI Chat',
@@ -175,38 +176,49 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Activities */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 hover:shadow-2xl transition-all duration-300"
-          >
-            <h2 className="text-xl font-bold text-blue-700 mb-6">Recent Activities</h2>
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-4 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
-                  <div className={`p-3 rounded-xl ${
-                    activity.type === 'checkup' ? 'bg-blue-100' :
-                    activity.type === 'appointment' ? 'bg-green-100' :
-                    activity.type === 'chat' ? 'bg-purple-100' :
-                    'bg-red-100'
-                  }`}>
-                    {activity.type === 'checkup' && <HeartIcon className="w-5 h-5 text-blue-600" />}
-                    {activity.type === 'appointment' && <CalendarDaysIcon className="w-5 h-5 text-green-600" />}
-                    {activity.type === 'chat' && <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-600" />}
-                    {activity.type === 'emergency' && <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-blue-700">{activity.action}</p>
-                    <p className="text-sm text-gray-500">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
+        {/* Health Score Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-blue-700 mb-6">Your Health Overview</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <HealthScore userEmail={localStorage.getItem('userEmail')} />
             </div>
-          </motion.div>
+            <div className="lg:col-span-2">
+              {/* Recent Activities moved here */}
+              <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 hover:shadow-2xl transition-all duration-300 h-full">
+                <h2 className="text-xl font-bold text-blue-700 mb-6">Recent Activities</h2>
+                <div className="space-y-4">
+                  {recentActivities.map((activity, index) => (
+                    <div key={index} className="flex items-center space-x-4 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                      <div className={`p-3 rounded-xl ${
+                        activity.type === 'checkup' ? 'bg-blue-100' :
+                        activity.type === 'appointment' ? 'bg-green-100' :
+                        activity.type === 'chat' ? 'bg-purple-100' :
+                        'bg-red-100'
+                      }`}>
+                        {activity.type === 'checkup' && <HeartIcon className="w-5 h-5 text-blue-600" />}
+                        {activity.type === 'appointment' && <CalendarDaysIcon className="w-5 h-5 text-green-600" />}
+                        {activity.type === 'chat' && <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-600" />}
+                        {activity.type === 'emergency' && <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-blue-700">{activity.action}</p>
+                        <p className="text-sm text-gray-500">{activity.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
           {/* Upcoming Appointments */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -234,7 +246,7 @@ const Dashboard = () => {
                 </div>
               ))}
               <button
-                onClick={() => navigate('/appointments')}
+                onClick={() => navigate('/appointments/book')}
                 className="w-full text-center py-3 text-blue-600 hover:text-blue-700 font-semibold transition-colors bg-blue-50 rounded-xl hover:bg-blue-100"
               >
                 View All Appointments →

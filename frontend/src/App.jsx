@@ -26,6 +26,8 @@ import QuickCheckup from './pages/QuickCheckup';
 import HealthMetrics from './pages/HealthMetrics';
 import HealthPredict from './pages/HealthPredict';
 import AppointmentBooking from './pages/AppointmentBooking';
+import AppointmentBookingDetails from './pages/AppointmentBookingDetails';
+import MedicineReminder from './pages/MedicineReminder';
 
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
@@ -149,6 +151,7 @@ function App() {
           />
           <Routes>
             <Route path="/" element={<SimpleLanding />} />
+            <Route path="/landing" element={<SimpleLanding />} />
             <Route path="/signin" element={<Signin setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/register" element={<Register setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/admin-login" element={<AdminLoginPg setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} onAuthSuccess={handleAuthSuccess} />} />
@@ -271,6 +274,16 @@ function App() {
                     <Route path="/appointments/book" element={
                       <ProtectedRoute allowedRoles={['patient']}>
                         <AppointmentBooking />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/appointments/book-details" element={
+                      <ProtectedRoute allowedRoles={['patient']}>
+                        <AppointmentBookingDetails />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/medicine-reminder" element={
+                      <ProtectedRoute allowedRoles={['patient']}>
+                        <MedicineReminder />
                       </ProtectedRoute>
                     } />
                     

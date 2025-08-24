@@ -103,20 +103,35 @@ def get_doctor_appointments(current_doctor: dict = Depends(get_current_doctor)):
         doctor_id = str(current_doctor["_id"])
         
         # Get appointments for the doctor
-        appointments = list(db.appointments.find({"doctor_id": doctor_id}).sort("date", 1))
+        appointments = list(db.appointments.find({"doctor_id": doctor_id}).sort("appointment_date", 1))
         
-        # Enrich with patient information
+        # Enrich with patient information and format data
+        formatted_appointments = []
         for appointment in appointments:
-            appointment["id"] = str(appointment["_id"])
-            del appointment["_id"]
-            
             # Get patient details
             patient = db.users.find_one({"_id": ObjectId(appointment["patient_id"])})
-            if patient:
-                appointment["patient_name"] = patient.get("username", "Unknown")
-                appointment["patient_email"] = patient.get("email", "")
+            
+            formatted_appointment = {
+                "id": str(appointment["_id"]),
+                "patientName": appointment.get("patient_name", patient.get("username", "Unknown") if patient else "Unknown"),
+                "patientEmail": appointment.get("patient_email", patient.get("email", "") if patient else ""),
+                "date": appointment.get("appointment_date", appointment.get("date", "")),
+                "time": appointment.get("appointment_time", appointment.get("time", "")),
+                "type": appointment.get("reason", "General consultation"),
+                "reason": appointment.get("reason", ""),
+                "symptoms": appointment.get("symptoms", ""),
+                "status": appointment.get("status", "pending"),
+                "consultation_fee": appointment.get("consultation_fee", 500),
+                "created_at": appointment.get("created_at", ""),
+                "urgency": appointment.get("urgency", "normal")
+            }
+            formatted_appointments.append(formatted_appointment)
         
-        return appointments
+        return {
+            "success": True,
+            "appointments": formatted_appointments,
+            "count": len(formatted_appointments)
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching appointments: {str(e)}")
 
@@ -304,3 +319,35 @@ def get_doctor_schedule(current_doctor: dict = Depends(get_current_doctor)):
         return schedule
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching schedule: {str(e)}")
+
+@router.put("/appointments/{appointment_id}")
+def update_appointment_status(
+    appointment_id: str,
+    status_data: dict,
+    current_doctor: dict = Depends(get_current_doctor)
+):
+    """Update appointment status (accept/reject/complete)"""
+    try:
+        doctor_id = str(current_doctor["_id"])
+        new_status = status_data.get("status")
+        
+        if new_status not in ["accepted", "rejected", "completed", "confirmed"]:
+            raise HTTPException(status_code=400, detail="Invalid status")
+        
+        # Update appointment status
+        result = db.appointments.update_one(
+            {"_id": appointment_id, "doctor_id": doctor_id},
+            {"$set": {"status": new_status, "updated_at": datetime.now().isoformat()}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        
+        return {
+            "success": True,
+            "message": f"Appointment {new_status} successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating appointment: {str(e)}")

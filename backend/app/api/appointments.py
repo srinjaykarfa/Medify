@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from datetime import datetime
 from ..core.auth import get_current_user
-from ..schemas.user import User
 
 router = APIRouter()
 
@@ -12,7 +11,7 @@ def get_database():
     return db
 
 @router.get("/doctors")
-async def get_available_doctors(current_user: User = Depends(get_current_user), db = Depends(get_database)):
+async def get_available_doctors(current_user: dict = Depends(get_current_user), db = Depends(get_database)):
     """Get all approved doctors for appointment booking"""
     try:
         # Get users collection from MongoDB
@@ -54,7 +53,7 @@ async def get_available_doctors(current_user: User = Depends(get_current_user), 
 @router.post("/book")
 async def book_appointment(
     appointment_data: dict,
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     db = Depends(get_database)
 ):
     """Book an appointment with a doctor"""
@@ -88,19 +87,21 @@ async def book_appointment(
             )
         
         # Create appointment record
-        appointment_id = f"apt_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{current_user.id[:8]}"
+        appointment_id = f"apt_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{current_user.get('_id', '')[:8]}"
         
         appointment = {
             "_id": appointment_id,
-            "patient_id": current_user.id,
-            "patient_name": current_user.full_name,
-            "patient_email": current_user.email,
+            "patient_id": current_user.get("_id"),
+            "patient_name": current_user.get("username", current_user.get("full_name", "Unknown")),
+            "patient_email": current_user.get("email"),
             "doctor_id": str(doctor.get("_id")),
             "doctor_name": doctor.get("username"),
             "appointment_date": appointment_data.get("date"),
             "appointment_time": appointment_data.get("time"),
             "reason": appointment_data.get("reason", "General consultation"),
-            "status": "scheduled",
+            "symptoms": appointment_data.get("symptoms", ""),
+            "urgency": appointment_data.get("urgency", "normal"),
+            "status": "pending",  # Changed from "scheduled" to "pending" for doctor approval
             "created_at": datetime.now().isoformat(),
             "consultation_fee": doctor.get("consultation_fee", 500)
         }
@@ -124,14 +125,14 @@ async def book_appointment(
         )
 
 @router.get("/my-appointments")
-async def get_my_appointments(current_user: User = Depends(get_current_user), db = Depends(get_database)):
+async def get_my_appointments(current_user: dict = Depends(get_current_user), db = Depends(get_database)):
     """Get appointments for the current user"""
     try:
         # Get appointments collection from MongoDB
         appointments_collection = db.appointments
         
         appointments_cursor = appointments_collection.find({
-            "patient_id": current_user.id
+            "patient_id": current_user.get("_id")
         })
         
         user_appointments = []

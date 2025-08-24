@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient  # Changed from motor.motor_asyncio
 from dotenv import load_dotenv
 import os
-from .api import chat, users, admin, doctor, lab_reports, predict, appointments
+from .api import chat, users, admin, doctor, lab_reports, predict, appointments, emergency
 from fastapi.staticfiles import StaticFiles
 from .core.mock_db import get_mock_db
 
@@ -26,8 +26,20 @@ MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
 MONGODB_DB = os.getenv("MONGODB_DB", "health_db")
 
 try:
-    # Try to connect to MongoDB
-    client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=5000)
+    # Try to connect to MongoDB Atlas with SSL configuration
+    if "mongodb+srv://" in MONGODB_URL:
+        # For MongoDB Atlas - Disable SSL verification temporarily 
+        client = MongoClient(
+            MONGODB_URL, 
+            serverSelectionTimeoutMS=10000,
+            ssl=True,
+            # ssl_cert_reqs=0,  # Disable SSL certificate verification
+            retryWrites=True
+        )
+    else:
+        # For local MongoDB
+        client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=5000)
+    
     client.server_info()  # Test connection
     db = client[MONGODB_DB]
     print("✅ Connected to MongoDB successfully")
@@ -61,6 +73,7 @@ app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(doctor.router, prefix="/api/doctor", tags=["doctor"])
 app.include_router(lab_reports.router, prefix="/api/lab-reports", tags=["lab-reports"])
 app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
+app.include_router(emergency.router, prefix="/api/emergency", tags=["emergency"])
 # app.include_router(lab_reports.router, prefix="/api/lab-reports", tags=["lab-reports"])
 
 # Basic endpoint

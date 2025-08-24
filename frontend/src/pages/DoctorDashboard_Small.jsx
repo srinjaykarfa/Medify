@@ -3,7 +3,7 @@ import DoctorLayout from '../components/doctor/DoctorLayout';
 import DoctorOverview from '../components/doctor/DoctorOverview';
 import DoctorAppointments from '../components/doctor/DoctorAppointments';
 import DoctorPatients from '../components/doctor/DoctorPatients';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const DoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
