@@ -163,11 +163,11 @@ Now, visit http://localhost:5173 to access the app.
 ### 👥 Team Contributions
 
 Name	              
-RISHAV KALI         :	Frontend Development (React, Tailwind CSS, UI/UX Integration)
+SRINJAY KARFA       :	Frontend Development (React, Tailwind CSS, UI/UX Integration)
 
-RISHOV CHAKRABORTY  :	Backend Development (FastAPI, LLM Integration, Database, Authentication)
+JAYDEEP SARDAR  :	Backend Development (FastAPI, LLM Integration, Database, Authentication)
 
-POULAMI DAS         :	Machine Learning Models (Disease Prediction Models, Training, Deployment)
+SRESHTHA DUTTA AND AYOSHI BOSE     :	Machine Learning Models (Disease Prediction Models, Training, Deployment)
 
 
 ## 🙏 Conclusion
